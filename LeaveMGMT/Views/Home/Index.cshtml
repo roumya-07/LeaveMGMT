@@ -1,0 +1,364 @@
+﻿<fieldset class="border">
+    <legend class="bg-warning">
+        <marquee behavior="alternate">
+            <b>Leave Application Form</b>
+        </marquee>
+    </legend>
+    <div class="shadow bg-secondary p-5">
+        <div class="row bg-light shadow-lg pt-5">
+            <div class="col-md-9">
+                <table class="table table-borderless">
+                    <tr>
+                        <!--<td>-->
+                        @*Emp Code*@
+                        <!--<label id="ECL">Emp Code</label>
+                            <input type="text" placeholder="Emp Code" class="form-control" id="EmpCode" />
+                        </td>-->
+                        <td>
+                            <label id="ECL">Emp Code</label>
+                            <select id="EmpCode" class="form-control">
+                                <option>Employee Code</option>
+                            </select>
+                        </td>
+                        <td>
+                            @*Emp Name*@
+                            <label id="ENL">Emp Name</label>
+                            <input type="text" placeholder="Emp Name" class="form-control" readonly id="EmpName" />
+                        </td>
+                        <td>
+                            @*Designation*@
+                            <label id="DEL">Designation</label>
+                            <input type="text" placeholder="Designation" class="form-control" readonly id="Designation" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @*Leave Type*@
+                            <label id="LTL">Leave Type</label>
+                            <select id="LeaveType" class="form-control">
+                                <option id="Select" value="0">Leave Type</option>
+                                <option value="ML">Medical Leave</option>
+                                <option value="CL">Casual Leave</option>
+                            </select>
+                        </td>
+                        <td>
+                            @*Documents*@
+                            <label id="DOL">Documents</label>
+                            <input type="file" class="form-control" id="FileUP" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @*From Date*@
+                            <label id="FDL">From Date</label>
+                            <input type="date" class="form-control" id="FromDate" />
+                        </td>
+                        <td>
+                            @*To Date*@
+                            <label id="TDL">To Date</label>
+                            <input type="date" class="form-control" id="ToDate" />
+                        </td>
+                        <td>
+                            <label id="DVL">Days</label>
+                            <p id="DateVal">(Applying For <span id="result"></span> days)</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            @*Reason **@
+                            <label id="REL">Reason</label>
+                            <textarea id="Reason" placeholder="Reason" class="form-control" cols="30"></textarea>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div id="Status" class="col-md-3">
+                <table class="table text-center border">
+                    <tr>
+                        <td colspan="2">
+                            <u><b>Employee Leave Status</b></u>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            CL
+                        </td>
+                        <td>
+                            ML
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="CL">0</label>
+                        </td>
+                        <td>
+                            <label id="ML">0</label>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-12 text-center">
+                <table class="table table-borderless text-center ">
+                    <tr>
+                        <td>
+                            <input type="button" id="Apply" class="btn btn-success" value="Apply" />
+                            <input type="button" id="Reset" class="btn btn-warning" value="Reset" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</fieldset>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(window).on("load", function () {
+        $("#DateVal").hide();
+        GetEmployeeCode();
+
+        $("#ECL").hide();
+        $("#ENL").hide();
+        $("#DEL").hide();
+        $("#LTL").hide();
+        $("#DOL").hide();
+        $("#FDL").hide();
+        $("#TDL").hide();
+        $("#DVL").hide();
+        $("#REL").hide();
+    });
+
+    function GetEmployeeCode() {
+        $.ajax({
+            url: "/Home/GetEmployeeCode",
+            type: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            success: function (result) {
+                //DropDown
+
+                var P = "<option>Employee Code</option>";
+                $.each(result, function (i, P1) {
+                    P += "<option value=" + P1.EmpCode + ">" + P1.EmpCode + "</option>";
+                });
+                $("#EmpCode").html(P);
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+
+    function Status() {
+        $.ajax({
+            url: "/Home/EmpDetailsByEmpCode?EmpCode=" + $('#EmpCode').val(),
+            typr: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            success: function (result) {
+                $('#ML').text(result[0].MLApp + "/" + result[0].TML);
+                $('#CL').text(result[0].CLApp + "/" + result[0].TCL);
+
+                $('#LeaveType').val(0);
+                $('#FileUP').val('');
+                $('#FromDate').val('');
+                $('#ToDate').val('');
+                $('#Reason').val('');
+
+                $("#ECL").show();
+                $("#ENL").show();
+                $("#DEL").show();
+                $("#LTL").show();
+                $("#DOL").show();
+                $("#FDL").show();
+                $("#TDL").show();
+                $("#DVL").show();
+                $("#REL").show();
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    }
+
+    $("#ToDate").change(function () {
+        $("#DateVal").show();
+        var FromDate = document.getElementById("FromDate").value;
+        var ToDate = document.getElementById("ToDate").value;
+        var days = daysdifference(FromDate, ToDate);
+        document.getElementById("result").innerHTML = days+1;
+    });
+
+
+    function daysdifference(firstDate, secondDate) {
+        var startDay = new Date(firstDate);
+        var endDay = new Date(secondDate); // Determine the time difference between two dates 
+        var millisBetween = startDay.getTime() - endDay.getTime(); // Determine the number of days between two dates  
+        var days = millisBetween / (1000 * 3600 * 24); // Show the final number of days between dates   
+        return Math.round(Math.abs(days));
+    }
+
+    $('#LeaveType').change(function () {
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+
+        var LeaveType = document.getElementById("LeaveType").value;
+
+        var CurrentDate = new Date();
+
+        var Currentday = CurrentDate.getDate();
+        var BackDay = Currentday - 15;
+        var Month = CurrentDate.getMonth();
+        var Year = CurrentDate.getFullYear();
+
+        var PrevDate = `${Year}-${'0' + (Month + 1)}-${BackDay}`;
+
+        if (LeaveType == "ML") {
+            FromDate.min = new Date(PrevDate).toISOString().split("T")[0];
+            FromDate.max = new Date().toISOString().split("T")[0];
+
+            ToDate.min = new Date(PrevDate).toISOString().split("T")[0];
+            ToDate.max = new Date().toISOString().split("T")[0];
+        }
+        else {
+            FromDate.min = new Date().toISOString().split("T")[0];
+            FromDate.max = new Date().toISOString().split("T")[1];
+
+            ToDate.min = new Date().toISOString().split("T")[0];
+            ToDate.max = new Date().toISOString().split("T")[1];
+        }
+    });
+
+
+    $('#FromDate').change(function () {
+        $('#ToDate').val('');
+        var Designation = document.getElementById("Designation").value;
+        var LeaveType = document.getElementById("LeaveType").value;
+        var CurrentDate = document.getElementById("FromDate").value;
+
+        var d = new Date(CurrentDate);
+        var NewCurrentday = d.getDate();
+        var NewMonth = d.getMonth();
+        var NewYear = d.getFullYear();
+        var BC;
+
+        if (Designation == "Manager") {
+            if (LeaveType == "ML") {
+                BC= NewCurrentday + 1;
+                var CD = `${NewYear}-${'0' + (NewMonth + 1)}-${BC}`;
+                ToDate.min = new Date(CurrentDate).toISOString().split("T")[0];
+                ToDate.max = new Date(CD).toISOString().split("T")[0];
+            }
+            else {
+                BC = NewCurrentday + 4;
+                var CD = `${NewYear}-${'0' + (NewMonth + 1)}-${BC}`;
+                ToDate.min = new Date(CurrentDate).toISOString().split("T")[0];
+                ToDate.max = new Date(CD).toISOString().split("T")[0];
+            }
+        }
+        else {
+            if (LeaveType == "ML") {
+                var CD = `${NewYear}-${'0' + (NewMonth + 1)}-${NewCurrentday}`;
+                ToDate.min = new Date(CurrentDate).toISOString().split("T")[0];
+                ToDate.max = new Date(CD).toISOString().split("T")[0];
+            }
+            else {
+                BC = NewCurrentday + 3;
+                var CD = `${NewYear}-${'0' + (NewMonth + 1)}-${BC}`;
+                ToDate.min = new Date(CurrentDate).toISOString().split("T")[0];
+                ToDate.max = new Date(CD).toISOString().split("T")[0];
+            }
+        }
+    });
+    
+    $('#EmpCode').change(function () {
+        //$('#Status').show();
+        $('#LeaveType').val(0);
+        $('#FileUP').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        $('#Reason').val('');
+        $('#CL').text(0);
+        $('#ML').text(0);
+
+        $.ajax({
+            url: "/Home/EmpDetailsByEmpCode?EmpCode=" + $('#EmpCode').val(),
+            typr: "GET",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            success: function (result) {
+                $('#EmpName').val(result[0].EmpName);
+                $('#Designation').val(result[0].Designation);
+                $('#ML').text(result[0].MLApp + "/" + result[0].TML);
+                $('#CL').text(result[0].CLApp + "/" + result[0].TCL);
+
+                $("#Select").text("Select One");
+                $("#ECL").show();
+                $("#ENL").show();
+                $("#DEL").show();
+                $("#LTL").show();
+                $("#DOL").show();
+                $("#FDL").show();
+                $("#TDL").show();
+                $("#DVL").show();
+                $("#REL").show();
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+    })
+
+    $("#Reset").click(function () {
+        $('#EmpCode').val('');
+        $('#EmpName').val('');
+        $('#Designation').val('');
+        $('#LeaveType').val(0);
+        $('#FileUP').val('');
+        $('#FromDate').val('');
+        $('#ToDate').val('');
+        $('#Reason').val('');
+        $('#CL').text(0);
+        $('#ML').text(0);
+    });
+
+    $("#Apply").click(function () {
+        var fileData = new FormData();
+        fileData.append("EmpCode", $('#EmpCode').val());
+        fileData.append("LeaveType", $('#LeaveType').val());
+        fileData.append("FromDate", $('#FromDate').val());
+        fileData.append("ToDate", $('#ToDate').val());
+        fileData.append("Reason", $('#Reason').val());
+        var files = $('#FileUP').prop("files");
+        fileData.append("DocFile", files[0]);
+        $.ajax({
+            type: "POST",
+            url: "/Home/AddLeave",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            data: fileData,
+            contentType: false,
+            processData: false,
+            success: function (result) {
+                alert(result);
+                Status();
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });
+        //if (validate()) {
+
+        //}
+    });
+
+
+
+</script>
