@@ -15,26 +15,26 @@
                             <input type="text" placeholder="Emp Code" class="form-control" id="EmpCode" />
                         </td>-->
                         <td>
-                            <label id="ECL">Emp Code</label>
+                            <label id="ECL" class="font-weight-bold">Emp Code</label>
                             <select id="EmpCode" class="form-control">
                                 <option>Employee Code</option>
                             </select>
                         </td>
                         <td>
                             @*Emp Name*@
-                            <label id="ENL">Emp Name</label>
+                            <label id="ENL" class="font-weight-bold">Emp Name</label>
                             <input type="text" placeholder="Emp Name" class="form-control" readonly id="EmpName" />
                         </td>
                         <td>
                             @*Designation*@
-                            <label id="DEL">Designation</label>
+                            <label id="DEL" class="font-weight-bold">Designation</label>
                             <input type="text" placeholder="Designation" class="form-control" readonly id="Designation" />
                         </td>
                     </tr>
                     <tr>
                         <td>
                             @*Leave Type*@
-                            <label id="LTL">Leave Type</label>
+                            <label id="LTL" class="font-weight-bold">Leave Type</label>
                             <select id="LeaveType" class="form-control">
                                 <option id="Select" value="0">Leave Type</option>
                                 <option value="ML">Medical Leave</option>
@@ -43,30 +43,30 @@
                         </td>
                         <td>
                             @*Documents*@
-                            <label id="DOL">Documents</label>
+                            <label id="DOL" class="font-weight-bold">Documents</label>
                             <input type="file" class="form-control" id="FileUP" />
                         </td>
                     </tr>
                     <tr>
                         <td>
                             @*From Date*@
-                            <label id="FDL">From Date</label>
+                            <label id="FDL" class="font-weight-bold">From Date</label>
                             <input type="date" class="form-control" id="FromDate" />
                         </td>
                         <td>
                             @*To Date*@
-                            <label id="TDL">To Date</label>
+                            <label id="TDL" class="font-weight-bold">To Date</label>
                             <input type="date" class="form-control" id="ToDate" />
                         </td>
                         <td>
-                            <label id="DVL">Days</label>
+                            <label id="DVL" class="font-weight-bold"><br /></label>
                             <p id="DateVal">(Applying For <span id="result"></span> days)</p>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="3">
                             @*Reason **@
-                            <label id="REL">Reason</label>
+                            <label id="REL" class="font-weight-bold">Reason</label>
                             <textarea id="Reason" placeholder="Reason" class="form-control" cols="30"></textarea>
                         </td>
                     </tr>
@@ -76,15 +76,15 @@
             <div id="Status" class="col-md-3">
                 <table class="table text-center border">
                     <tr>
-                        <td colspan="2">
+                        <td colspan="2" class="font-weight-bold">
                             <u><b>Employee Leave Status</b></u>
                         </td>
                     </tr>
                     <tr>
-                        <td>
+                        <td class="font-weight-bold">
                             CL
                         </td>
-                        <td>
+                        <td class="font-weight-bold">
                             ML
                         </td>
                     </tr>
@@ -102,18 +102,15 @@
                 <table class="table table-borderless text-center ">
                     <tr>
                         <td>
-                            <input type="button" id="Apply" class="btn btn-success" value="Apply" />
-                            <input type="button" id="Reset" class="btn btn-warning" value="Reset" />
+                            <input type="button" id="Apply" class="btn btn-success font-weight-bold" value="Apply" />
+                            <input type="button" id="Reset" class="btn btn-warning font-weight-bold" value="Reset" />
                         </td>
                     </tr>
                 </table>
             </div>
         </div>
     </div>
-
-
 </fieldset>
-
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
@@ -140,9 +137,7 @@
             contentType: "application/json;charset=UTF-8",
             dataType: "json",
             success: function (result) {
-                //DropDown
-
-                var P = "<option>Employee Code</option>";
+                var P = "<option value=0>Employee Code</option>";
                 $.each(result, function (i, P1) {
                     P += "<option value=" + P1.EmpCode + ">" + P1.EmpCode + "</option>";
                 });
@@ -177,7 +172,7 @@
                 $("#DOL").show();
                 $("#FDL").show();
                 $("#TDL").show();
-                $("#DVL").show();
+                //$("#DVL").show();
                 $("#REL").show();
             },
             error: function (errormessage) {
@@ -187,6 +182,7 @@
     }
 
     $("#ToDate").change(function () {
+        $("#DVL").show();
         $("#DateVal").show();
         var FromDate = document.getElementById("FromDate").value;
         var ToDate = document.getElementById("ToDate").value;
@@ -204,6 +200,16 @@
     }
 
     $('#LeaveType').change(function () {
+        var LeaveType = document.getElementById("LeaveType").value;
+
+        if (LeaveType == "ML") {
+            $('#FileUP').attr('disabled', false);
+        }
+        else {
+            $('#FileUP').attr('disabled', true);
+            $('#FileUP').val();
+        }
+
         $('#FromDate').val('');
         $('#ToDate').val('');
 
@@ -275,7 +281,8 @@
             }
         }
     });
-    
+
+
     $('#EmpCode').change(function () {
         //$('#Status').show();
         $('#LeaveType').val(0);
@@ -305,7 +312,7 @@
                 $("#DOL").show();
                 $("#FDL").show();
                 $("#TDL").show();
-                $("#DVL").show();
+                //$("#DVL").show();
                 $("#REL").show();
             },
             error: function (errormessage) {
@@ -327,36 +334,71 @@
         $('#ML').text(0);
     });
 
-    $("#Apply").click(function () {
-        var fileData = new FormData();
-        fileData.append("EmpCode", $('#EmpCode').val());
-        fileData.append("LeaveType", $('#LeaveType').val());
-        fileData.append("FromDate", $('#FromDate').val());
-        fileData.append("ToDate", $('#ToDate').val());
-        fileData.append("Reason", $('#Reason').val());
-        var files = $('#FileUP').prop("files");
-        fileData.append("DocFile", files[0]);
-        $.ajax({
-            type: "POST",
-            url: "/Home/AddLeave",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("XSRF-TOKEN",
-                    $('input:hidden[name="__RequestVerificationToken"]').val());
-            },
-            data: fileData,
-            contentType: false,
-            processData: false,
-            success: function (result) {
-                alert(result);
-                Status();
-            },
-            error: function (errormessage) {
-                alert(errormessage.responseText);
-            }
-        });
-        //if (validate()) {
+    function Validation() {
+        if ($('#EmpCode').val() == 0) {
+            alert("Please Enter Employee Code")
+            $('#EmpCode').focus();
+            return false;
+        }
+        else if ($('#LeaveType').val() == 0) {
+            alert("Please Select Leave Type")
+            $('#LeaveType').focus();
+            return false;
+        }
+        else if ($('#FileUP').val() == "") {
+            alert("Please Choose a File")
+            $('#FileUP').focus();
+            return false;
+        }
+        else if ($('#FromDate').val() == "") {
+            alert("Please Enter From date")
+            $('#FromDate').focus();
+            return false;
+        }
+        else if ($('#ToDate').val() == "") {
+            alert("Please Enter TO Date")
+            $('#ToDate').focus();
+            return false;
+        }
+        else if ($('#Reason').val() == "") {
+            alert("Please Enter Reason")
+            $('#Reason').focus();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
 
-        //}
+    $("#Apply").click(function () {
+        if (Validation()) {
+            var fileData = new FormData();
+            fileData.append("EmpCode", $('#EmpCode').val());
+            fileData.append("LeaveType", $('#LeaveType').val());
+            fileData.append("FromDate", $('#FromDate').val());
+            fileData.append("ToDate", $('#ToDate').val());
+            fileData.append("Reason", $('#Reason').val());
+            var files = $('#FileUP').prop("files");
+            fileData.append("DocFile", files[0]);
+            $.ajax({
+                type: "POST",
+                url: "/Home/AddLeave",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: fileData,
+                contentType: false,
+                processData: false,
+                success: function (result) {
+                    alert(result);
+                    Status();
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                }
+            });
+        }
     });
 
 
